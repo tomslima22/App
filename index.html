@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f766e">
+  <title>Meus Gastos</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Meus Gastos</h1>
+    <div class="month-nav">
+      <button id="prev-month" class="icon-btn" aria-label="Mês anterior">‹</button>
+      <span id="month-label"></span>
+      <button id="next-month" class="icon-btn" aria-label="Próximo mês">›</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="cards">
+      <button class="card card-income" id="edit-income" title="Toque para editar a renda do mês">
+        <span class="card-label">Renda</span>
+        <strong id="sum-income"></strong>
+      </button>
+      <div class="card">
+        <span class="card-label">Fixos</span>
+        <strong id="sum-fixed"></strong>
+        <small id="sum-fixed-paid"></small>
+      </div>
+      <div class="card">
+        <span class="card-label">Variáveis</span>
+        <strong id="sum-variable"></strong>
+      </div>
+      <div class="card card-balance">
+        <span class="card-label">Saldo</span>
+        <strong id="sum-balance"></strong>
+      </div>
+    </section>
+
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="summary" class="active">Resumo</button>
+      <button role="tab" data-tab="fixed">Fixos</button>
+      <button role="tab" data-tab="variable">Variáveis</button>
+      <button role="tab" data-tab="settings">Ajustes</button>
+    </nav>
+
+    <section id="tab-summary" class="tab-panel active">
+      <h2>Gastos por categoria</h2>
+      <div id="category-chart" class="bars"></div>
+      <h2>Contas fixas a pagar</h2>
+      <ul id="pending-list" class="list"></ul>
+    </section>
+
+    <section id="tab-fixed" class="tab-panel">
+      <div class="panel-head">
+        <h2>Gastos fixos</h2>
+        <button class="btn primary" id="add-fixed">+ Novo fixo</button>
+      </div>
+      <p class="hint">Contas que se repetem todo mês (aluguel, internet, assinaturas…). Marque como pago a cada mês.</p>
+      <ul id="fixed-list" class="list"></ul>
+    </section>
+
+    <section id="tab-variable" class="tab-panel">
+      <div class="panel-head">
+        <h2>Gastos variáveis</h2>
+        <button class="btn primary" id="add-variable">+ Novo gasto</button>
+      </div>
+      <div class="filter-row">
+        <select id="variable-filter" aria-label="Filtrar por categoria"></select>
+      </div>
+      <ul id="variable-list" class="list"></ul>
+    </section>
+
+    <section id="tab-settings" class="tab-panel">
+      <h2>Categorias</h2>
+      <ul id="category-list" class="chips"></ul>
+      <form id="category-form" class="inline-form">
+        <input id="category-name" placeholder="Nova categoria" maxlength="30" required>
+        <button class="btn">Adicionar</button>
+      </form>
+
+      <h2>Backup dos dados</h2>
+      <p class="hint">Os dados ficam salvos apenas neste aparelho/navegador. Exporte um backup de vez em quando.</p>
+      <div class="btn-row">
+        <button class="btn" id="export-json">Exportar backup (JSON)</button>
+        <label class="btn">Importar backup<input type="file" id="import-json" accept="application/json,.json" hidden></label>
+        <button class="btn" id="export-csv">Exportar mês (CSV)</button>
+      </div>
+
+      <h2>Zona de perigo</h2>
+      <button class="btn danger" id="reset-all">Apagar todos os dados</button>
+    </section>
+  </main>
+
+  <button class="fab" id="fab" aria-label="Adicionar gasto variável">+</button>
+
+  <dialog id="fixed-dialog">
+    <form method="dialog" id="fixed-form">
+      <h3 id="fixed-dialog-title">Gasto fixo</h3>
+      <label>Nome<input name="name" required maxlength="60" placeholder="Ex.: Aluguel"></label>
+      <label>Valor (R$)<input name="amount" required inputmode="decimal" placeholder="0,00"></label>
+      <label>Categoria<select name="category"></select></label>
+      <label>Dia de vencimento<input name="dueDay" type="number" min="1" max="31" placeholder="Ex.: 10"></label>
+      <div class="dialog-actions">
+        <button type="button" class="btn danger" id="fixed-delete" hidden>Encerrar</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn" data-close>Cancelar</button>
+        <button class="btn primary" value="save">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="variable-dialog">
+    <form method="dialog" id="variable-form">
+      <h3 id="variable-dialog-title">Gasto variável</h3>
+      <label>Descrição<input name="description" required maxlength="80" placeholder="Ex.: Mercado"></label>
+      <label>Valor (R$)<input name="amount" required inputmode="decimal" placeholder="0,00"></label>
+      <label>Categoria<select name="category"></select></label>
+      <label>Data<input name="date" type="date" required></label>
+      <div class="dialog-actions">
+        <button type="button" class="btn danger" id="variable-delete" hidden>Excluir</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn" data-close>Cancelar</button>
+        <button class="btn primary" value="save">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="income-dialog">
+    <form method="dialog" id="income-form">
+      <h3>Renda do mês</h3>
+      <label>Valor (R$)<input name="amount" inputmode="decimal" placeholder="0,00"></label>
+      <label class="check"><input type="checkbox" name="default"> Usar como padrão para os próximos meses</label>
+      <div class="dialog-actions">
+        <span class="spacer"></span>
+        <button type="button" class="btn" data-close>Cancelar</button>
+        <button class="btn primary" value="save">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
