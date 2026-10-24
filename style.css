@@ -41,6 +41,8 @@ body {
 }
 
 button, input, select { font: inherit; color: inherit; }
+/* Remove o atraso de toque duplo no iOS */
+button, label, a, .item-main { touch-action: manipulation; }
 
 .topbar {
   position: sticky;

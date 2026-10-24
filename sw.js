@@ -1,5 +1,5 @@
-// Cache simples para o app funcionar offline.
-const CACHE = 'meus-gastos-v2';
+// Cache para o app abrir instantaneamente e funcionar offline.
+const CACHE = 'meus-gastos-v3';
 const ASSETS = ['./', 'index.html', 'style.css', 'app.js', 'manifest.json', 'icons/icon.svg', 'icons/icon-180.png'];
 
 self.addEventListener('install', (e) => {
@@ -14,16 +14,25 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// Rede primeiro (para pegar atualizações), cache como fallback offline.
+// Cache primeiro: responde na hora com a cópia salva e busca a versão nova
+// em segundo plano (aparece na próxima abertura). Só espera a rede se não
+// houver nada salvo ainda.
 self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
+  if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
   e.respondWith(
-    fetch(e.request)
-      .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy));
-        return res;
-      })
-      .catch(() => caches.match(e.request))
+    caches.open(CACHE).then(async (cache) => {
+      const cached = await cache.match(e.request, { ignoreSearch: true });
+      const network = fetch(e.request)
+        .then((res) => {
+          if (res.ok) cache.put(e.request, res.clone());
+          return res;
+        })
+        .catch(() => cached);
+      if (cached) {
+        e.waitUntil(network);
+        return cached;
+      }
+      return network;
+    })
   );
 });
