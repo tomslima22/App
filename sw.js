@@ -1,6 +1,6 @@
 // Cache simples para o app funcionar offline.
-const CACHE = 'meus-gastos-v1';
-const ASSETS = ['./', 'index.html', 'style.css', 'app.js', 'manifest.json', 'icons/icon.svg'];
+const CACHE = 'meus-gastos-v2';
+const ASSETS = ['./', 'index.html', 'style.css', 'app.js', 'manifest.json', 'icons/icon.svg', 'icons/icon-180.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));

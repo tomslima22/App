@@ -26,6 +26,15 @@ python3 -m http.server 8000
 
 e abrir <http://localhost:8000>. Para usar no celular, publique a pasta em um serviço como GitHub Pages, Netlify ou Vercel.
 
+## Instalar no iPhone
+
+1. Publique pelo GitHub Pages (Settings → Pages → branch `master`, pasta `/ (root)`).
+2. Abra **https://tomslima22.github.io/App/** no **Safari**.
+3. Toque em **Compartilhar** → **Adicionar à Tela de Início**.
+
+Os dados ficam salvos só no iPhone, dentro do app instalado (são separados dos dados de uma aba comum do Safari).
+O backup em Ajustes abre a folha de compartilhamento: escolha "Salvar em Arquivos".
+
 ## Estrutura
 
 | Arquivo         | Conteúdo                                   |

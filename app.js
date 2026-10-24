@@ -448,7 +448,18 @@ $('#category-form').addEventListener('submit', (e) => {
 
 // ---------- Backup / exportação ----------
 
-function download(filename, content, type) {
+async function download(filename, content, type) {
+  // No iPhone (app na tela de início) o download direto não funciona bem:
+  // usa a folha de compartilhamento para salvar em Arquivos, enviar por WhatsApp etc.
+  const file = new File([content], filename, { type });
+  if (navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: filename });
+      return;
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+    }
+  }
   const url = URL.createObjectURL(new Blob([content], { type }));
   const a = Object.assign(document.createElement('a'), { href: url, download: filename });
   document.body.appendChild(a);
