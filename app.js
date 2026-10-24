@@ -126,7 +126,16 @@ function totals(key) {
   const fixedPaid = fixed.filter((f) => isPaid(key, f.id)).reduce((s, f) => s + f.amount, 0);
   const variableTotal = variableForMonth(key).reduce((s, v) => s + v.amount, 0);
   const income = incomeFor(key);
-  return { fixedTotal, fixedPaid, variableTotal, income, balance: income - fixedTotal - variableTotal };
+  return {
+    fixedTotal,
+    fixedPaid,
+    variableTotal,
+    income,
+    // Fixos só saem do saldo quando marcados como pagos
+    balance: income - fixedPaid - variableTotal,
+    // Saldo depois de pagar todos os fixos do mês
+    forecast: income - fixedTotal - variableTotal,
+  };
 }
 
 // Status de vencimento de um fixo não pago no mês exibido
@@ -158,11 +167,13 @@ function renderCards() {
   const t = totals(currentMonth);
   $('#sum-income').textContent = money(t.income);
   $('#sum-fixed').textContent = money(t.fixedTotal);
-  $('#sum-fixed-paid').textContent = `${money(t.fixedPaid)} pago`;
+  const pending = t.fixedTotal - t.fixedPaid;
+  $('#sum-fixed-paid').textContent = pending > 0 ? `${money(pending)} a pagar` : t.fixedTotal ? 'tudo pago ✓' : '';
   $('#sum-variable').textContent = money(t.variableTotal);
   const bal = $('#sum-balance');
   bal.textContent = money(t.balance);
   bal.className = t.balance < 0 ? 'neg' : t.income ? 'pos' : '';
+  $('#sum-forecast').textContent = pending > 0 ? `previsto ${money(t.forecast)}` : '';
 }
 
 function renderSummary() {

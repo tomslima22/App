@@ -1,5 +1,5 @@
 // Cache para o app abrir instantaneamente e funcionar offline.
-const CACHE = 'meus-gastos-v3';
+const CACHE = 'meus-gastos-v4';
 const ASSETS = ['./', 'index.html', 'style.css', 'app.js', 'manifest.json', 'icons/icon.svg', 'icons/icon-180.png'];
 
 self.addEventListener('install', (e) => {
